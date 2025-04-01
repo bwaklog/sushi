@@ -1,0 +1,15 @@
+* building the docker image
+
+  `sudo docker build . -t sushi`
+
+* creating a docker network
+
+  `docker network create sushi-test`
+
+* building the docker image
+
+  `docker run --rm -it --network sushi-test --privledged sushi`
+
+  Running the binary (note not installed on path)
+
+  `./sushi -h`

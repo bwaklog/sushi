@@ -1,0 +1,19 @@
+[package]
+name = "sushi"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+clap = { version = "4.5.34", features = ["derive"] }
+tokio = { version = "1.44.1", features = [
+  "rt",
+  "sync",
+  "io-std",
+  "tracing",
+  "macros",
+  "signal",
+  "rt-multi-thread",
+] }
+tracing = "0.1.41"
+tracing-subscriber = { version = "0.3.19", features = ["fmt", "std", "chrono"] }
+tun = { version = "0.7.17", features = ["async"] }
