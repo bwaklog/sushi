@@ -2,7 +2,7 @@ use core::panic;
 use std::{net::SocketAddr, process::exit};
 
 use tokio::net::UdpSocket;
-use tracing::{debug, error};
+use tracing::{debug, error, warn};
 use tun::{AbstractDevice, AsyncDevice};
 
 pub struct Config {
@@ -81,15 +81,6 @@ impl VNIC {
         }
         debug!("Created a UDP socket {:?}", config.udp_local_ip.clone());
 
-        if udp.connect(config.udp_remote_ip.clone()).await.is_err() {
-            error!(
-                "failed to connect to remote socket {:?}",
-                config.udp_remote_ip.clone()
-            );
-            panic!();
-        }
-        debug!("Connect to remote {:?}", config.udp_remote_ip.clone());
-
         VNIC {
             device,
             udp,
@@ -110,7 +101,11 @@ impl VNIC {
                     size, config_remote_ip
                 );
             }
-            let _ = self.udp.send(&buf).await;
+
+            match self.udp.send_to(&buf, config_remote_ip.clone()).await {
+                Ok(size) => debug!("Sent packet of size {:?} to {:?}", size, config_remote_ip),
+                Err(e) => warn!("Failed to send packet: {:?}", e),
+            }
         }
     }
 
