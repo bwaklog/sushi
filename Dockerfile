@@ -14,7 +14,7 @@ COPY --from=builder /app/target/aarch64-unknown-linux-musl/release/sushi .
 COPY Makefile .
 
 RUN apk update 
-RUN apk add vim tmux net-tools netcat-openbsd bash make
+RUN apk add vim tmux net-tools netcat-openbsd bash make redis
 
 CMD ["sh", "-c", "ifconfig eth0 | awk '/inet /{print $2}' && bash"]
 
