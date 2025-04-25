@@ -1,4 +1,4 @@
-container_ip := if os() == "linux" {`ip addr show eth0 | awk '/inet/ {print $2}' | cut -d '/' -f1`} else { '0.0.0.0' }
+container_hostname := `echo $HOSTNAME`
 
 help:
   @just -l
@@ -8,15 +8,24 @@ build tag:
   @if [ -f "/.dockerenv" ]; then \
     echo "Can't build an image, inside a container env"; \
   else \
-    sudo docker build . --platform linux/arm64 -t sushi:{{tag}}; \
+    echo 'Building bwaklog/sushi:{{tag}}';\
+    sudo docker build . \
+    --platform linux/arm64 \
+    -t bwaklog/sushi:{{tag}}; \
   fi \
 
 [unix, no-exit-message]
-run tag network='sushi-test':
+run tag hostname network='sushi-test':
   @if [ -f "/.dockerenv" ]; then \
     echo "Can't run an image, inside a container env"; \
   else \
-    sudo docker run --rm -it --network {{network}} --platform linux/arm64 --privileged sushi:{{tag}}; \
+    echo 'Running bwaklog/sushi:{{tag}} on network {{network}}';\
+    sudo docker run --rm -it \
+    --network {{network}} \
+    --platform linux/arm64 \
+    --hostname {{hostname}} \
+    --privileged \
+    bwaklog/sushi:{{tag}}; \
   fi \
 
 [private]
@@ -26,7 +35,7 @@ release:
 
 # start a vpn server
 vpns:
-  ./sushi -s -l {{container_ip}}:8080
+  ./sushi -s -l {{container_hostname}}:8080
 
 # start a bare metal server with cargo
 bare_vpns server: release
@@ -34,7 +43,7 @@ bare_vpns server: release
 
 # start a vpn client
 vpnc tunip server:
-  ./sushi -t {{tunip}} -l {{container_ip}}:8080 -r {{server}}:8080
+  ./sushi -t {{tunip}} -l {{container_hostname}}:8080 -r {{server}}:8080
 
 # start a bare metal client with cargo
 bare_vpnc tunip local server: release

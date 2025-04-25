@@ -17,5 +17,6 @@ COPY justfile .
 RUN apk update 
 RUN apk add vim tmux net-tools netcat-openbsd bash just redis
 
-CMD ["sh", "-c", "ifconfig eth0 | awk '/inet /{print $2}' && bash"]
+# CMD ["sh", "-c", "ifconfig eth0 | awk '/inet /{print $2}' && bash"]
+CMD ["bash"]
 
